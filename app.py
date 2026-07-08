@@ -27,7 +27,8 @@ How it works (in simple words):
 
 from flask import Flask, render_template, request
 import requests
-
+import time
+import markdown
 app = Flask(__name__)
 
 
@@ -38,7 +39,7 @@ app = Flask(__name__)
 # ---------------------------------------------------------
 chatbot_info = {
     "gemini": (
-        "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent",
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent",
         "Google's Gemini AI (free tier available)"
     ),
     "openai": (
@@ -55,7 +56,7 @@ chatbot_info = {
 #   OpenAI -> https://platform.openai.com/api-keys
 # ---------------------------------------------------------
 API_KEYS = {
-    "gemini": "PUT_YOUR_GEMINI_API_KEY_HERE",
+    "gemini": "AQ.Ab8RN6JEi9ftCd1CizU27MTBON713_sd27_kFuovtp-lKWj4SQ",
     "openai": "PUT_YOUR_OPENAI_API_KEY_HERE",
 }
 
@@ -94,8 +95,10 @@ def call_gemini(user_message, api_key):
             reply = result["candidates"][0]["content"]["parts"][0]["text"]
         else:
             reply = "Gemini did not send a proper answer."
+    elif response.status_code == 503:
+        reply = "Gemini's servers are busy right now. Please wait a few seconds and try again."
     else:
-        reply = "Error talking to Gemini. Status code: " + str(response.status_code)
+        reply = "Error talking to Gemini. Status code: " + str(response.status_code) + " - " + response.text[:200]
 
     return reply
 
@@ -143,9 +146,11 @@ def get_bot_reply(bot_name, user_message):
 
     elif bot_name == "gemini":
         reply = call_gemini(user_message, api_key)
+        reply = markdown.markdown(reply)
 
     elif bot_name == "openai":
         reply = call_openai(user_message, api_key)
+        reply = markdown.markdown(reply)
 
     else:
         reply = "Sorry, this chatbot is not supported yet."
