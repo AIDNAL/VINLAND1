@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Simple AI Chatbot Website</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            max-width: 700px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .chat-box {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            height: 350px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            margin-bottom: 15px;
+        }
+        .message {
+            padding: 8px 12px;
+            margin: 6px 0;
+            border-radius: 6px;
+        }
+        .you {
+            background-color: #d1e7ff;
+            text-align: right;
+        }
+        .bot {
+            background-color: #e2e2e2;
+            text-align: left;
+        }
+        form {
+            display: flex;
+            gap: 8px;
+        }
+        select, input[type=text] {
+            padding: 8px;
+            font-size: 15px;
+        }
+        input[type=text] {
+            flex-grow: 1;
+        }
+        button {
+            padding: 8px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .clear-link {
+            display: block;
+            text-align: center;
+            margin-top: 10px;
+            color: #888;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🤖 My Simple AI Chatbot Website</h1>
+    <p style="text-align:center;">A first-year Python project connecting to real AI chatbot APIs</p>
+
+    <div class="chat-box">
+        {% if history|length == 0 %}
+            <p style="color:gray; text-align:center;">No messages yet. Say hello below!</p>
+        {% endif %}
+
+        {% for sender, message in history %}
+    {% if sender == "You" %}
+        <div class="message you"><b>{{ sender }}:</b> {{ message }}</div>
+    {% else %}
+        <div class="message bot"><b>{{ sender }}:</b><br>{{ message|safe }}</div>
+    {% endif %}
+{% endfor %}    </div>
+
+   <form action="/chat" method="post" onsubmit="showLoading()">
+    <select name="bot">
+        {% for bot_name in bots %}
+            <option value="{{ bot_name }}">{{ bot_name }} - {{ info[bot_name][1] }}</option>
+        {% endfor %}
+    </select>
+
+    <input type="text" name="message" placeholder="Type your message here..." required>
+    <button type="submit" id="sendButton">Send</button>
+</form>
+
+<script>
+    function showLoading() {
+        var button = document.getElementById("sendButton");
+        button.innerText = "Thinking...";
+        button.disabled = true;
+    }
+</script> 
+
+    <a class="clear-link" href="/clear">Clear chat history</a>
+
+</body>
+</html>
